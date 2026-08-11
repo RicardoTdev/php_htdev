@@ -1,0 +1,20 @@
+[
+    {
+        "usuario": "joao",
+        "senha": "1234",
+        "nome": "João",
+        "numConta": 1001,
+        "tipo": "CC",
+        "saldo": 215,
+        "status": true
+    },
+    {
+        "usuario": "victoria",
+        "senha": "1234",
+        "nome": "Victoria",
+        "numConta": 1002,
+        "tipo": "CP",
+        "saldo": 400,
+        "status": true
+    }
+]

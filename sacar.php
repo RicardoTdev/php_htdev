@@ -2,42 +2,72 @@
 
 session_start();
 
-require_once "ContaBanco.php";
+require_once __DIR__ . "/app/classes/ContaBanco.php";
+require_once __DIR__ . "/app/classes/Transacao.php";
+
+
+// Verifica se o usuário está logado
 
 if (!isset($_SESSION["usuario"])) {
+
     header("Location: index.php");
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] != "POST") {
+
+// Verifica se a requisição veio através de POST
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+
     header("Location: conta.php");
     exit;
 }
 
+
+// Pega o valor enviado pelo formulário
 
 $valor = (float) $_POST["valor"];
 
 
+// Impede saque com valor inválido
+
 if ($valor <= 0) {
+
     header("Location: conta.php");
     exit;
 }
 
 
-$arquivo = "usuarios.json";
+// Caminho do arquivo de usuários
+
+$arquivo = __DIR__ . "/data/usuarios.json";
+
+
+// Lê o arquivo JSON
 
 $dados = file_get_contents($arquivo);
 
+
+// Converte o JSON para array PHP
+
 $usuarios = json_decode($dados, true);
 
+
+// Usuário atualmente logado
 
 $usuarioLogado = $_SESSION["usuario"];
 
 
 foreach ($usuarios as &$dadosConta) {
 
-    if ($dadosConta["usuario"] == $usuarioLogado) {
+    if ($dadosConta["usuario"] === $usuarioLogado) {
 
+
+        /*
+        |-----------------------------------------
+        | Criamos o objeto ContaBanco
+        |-----------------------------------------
+        */
 
         $contaBanco = new ContaBanco();
 
@@ -63,28 +93,104 @@ foreach ($usuarios as &$dadosConta) {
         );
 
 
-        // Verifica se existe saldo suficiente
+        /*
+        |-----------------------------------------
+        | Guardamos o saldo anterior
+        |-----------------------------------------
+        */
 
-        if ($contaBanco->getSaldo() >= $valor) {
+        $saldoAnterior = $contaBanco->getSaldo();
 
 
-            // Realiza o saque
+        /*
+        |-----------------------------------------
+        | Verificamos se existe saldo suficiente
+        |-----------------------------------------
+        */
+
+        if ($saldoAnterior >= $valor) {
+
+
+            /*
+            |-----------------------------------------
+            | Realizamos o saque
+            |-----------------------------------------
+            */
 
             $contaBanco->sacar($valor);
 
 
-            // Atualiza o saldo
+            /*
+            |-----------------------------------------
+            | Pegamos o novo saldo
+            |-----------------------------------------
+            */
 
-            $dadosConta["saldo"] =
-                $contaBanco->getSaldo();
+            $saldoAtual = $contaBanco->getSaldo();
 
 
-            // -------------------------------
-            // SALVAR TRANSAÇÃO
-            // -------------------------------
+            /*
+            |-----------------------------------------
+            | Atualizamos usuarios.json
+            |-----------------------------------------
+            */
 
-            $arquivoTransacoes = "transacoes.json";
+            $dadosConta["saldo"] = $saldoAtual;
 
+
+            /*
+            |-----------------------------------------
+            | Criamos a transação
+            |-----------------------------------------
+            */
+
+            $transacao = new Transacao();
+
+
+            $transacao->setUsuario(
+                $usuarioLogado
+            );
+
+            $transacao->setTipo(
+                "saque"
+            );
+
+            $transacao->setValor(
+                $valor
+            );
+
+            $transacao->setSaldoAnterior(
+                $saldoAnterior
+            );
+
+            $transacao->setSaldoAtual(
+                $saldoAtual
+            );
+
+            $transacao->setData(
+                date("d/m/Y H:i:s")
+            );
+
+            $transacao->setDescricao(
+                "Saque realizado"
+            );
+
+
+            /*
+            |-----------------------------------------
+            | Caminho do arquivo de transações
+            |-----------------------------------------
+            */
+
+            $arquivoTransacoes =
+                __DIR__ . "/data/transacoes.json";
+
+
+            /*
+            |-----------------------------------------
+            | Lemos transacoes.json
+            |-----------------------------------------
+            */
 
             $dadosTransacoes =
                 file_get_contents($arquivoTransacoes);
@@ -95,25 +201,26 @@ foreach ($usuarios as &$dadosConta) {
 
 
             if (!is_array($transacoes)) {
+
                 $transacoes = [];
             }
 
 
-            $novaTransacao = [
+            /*
+            |-----------------------------------------
+            | Adicionamos a nova transação
+            |-----------------------------------------
+            */
 
-                "usuario" => $usuarioLogado,
-
-                "tipo" => "saque",
-
-                "valor" => $valor,
-
-                "data" => date("d/m/Y H:i:s")
-
-            ];
+            $transacoes[] =
+                $transacao->paraArray();
 
 
-            $transacoes[] = $novaTransacao;
-
+            /*
+            |-----------------------------------------
+            | Salvamos transacoes.json
+            |-----------------------------------------
+            */
 
             $novoJsonTransacoes =
                 json_encode(
@@ -127,6 +234,12 @@ foreach ($usuarios as &$dadosConta) {
                 $arquivoTransacoes,
                 $novoJsonTransacoes
             );
+
+
+        } else {
+
+            echo "<p>Saldo insuficiente para realizar o saque.</p>";
+            exit;
         }
 
 
@@ -135,7 +248,11 @@ foreach ($usuarios as &$dadosConta) {
 }
 
 
-// Salvar novo saldo
+/*
+|-----------------------------------------
+| Salvamos usuarios.json
+|-----------------------------------------
+*/
 
 $novoJson =
     json_encode(
@@ -150,6 +267,12 @@ file_put_contents(
     $novoJson
 );
 
+
+/*
+|-----------------------------------------
+| Voltamos para a conta
+|-----------------------------------------
+*/
 
 header("Location: conta.php");
 

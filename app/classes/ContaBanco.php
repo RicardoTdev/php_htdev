@@ -19,8 +19,11 @@ class ContaBanco
         $this->setStatus(true);
 
         if ($t == "CC") {
+
             $this->setSaldo(150);
+
         } elseif ($t == "CP") {
+
             $this->setSaldo(150);
         }
     }
@@ -39,7 +42,6 @@ class ContaBanco
         } else {
 
             $this->setStatus(false);
-
         }
     }
 
@@ -48,12 +50,13 @@ class ContaBanco
     {
         if ($this->getStatus()) {
 
-            $this->setSaldo($this->getSaldo() + $v);
+            $this->setSaldo(
+                $this->getSaldo() + $v
+            );
 
         } else {
 
             echo "<p>Impossível depositar em uma conta fechada!</p>";
-
         }
     }
 
@@ -64,18 +67,18 @@ class ContaBanco
 
             if ($this->getSaldo() >= $v) {
 
-                $this->setSaldo($this->getSaldo() - $v);
+                $this->setSaldo(
+                    $this->getSaldo() - $v
+                );
 
             } else {
 
                 echo "<p>Saldo insuficiente para saque.</p>";
-
             }
 
         } else {
 
             echo "<p>Não posso sacar de uma conta fechada!</p>";
-
         }
     }
 
@@ -91,22 +94,23 @@ class ContaBanco
         } elseif ($this->getTipo() == "CP") {
 
             $v = 20;
-
         }
+
 
         if ($this->getStatus()) {
 
-            $this->setSaldo($this->getSaldo() - $v);
+            $this->setSaldo(
+                $this->getSaldo() - $v
+            );
 
         } else {
 
             echo "<p>Problemas com a conta. Não posso cobrar!</p>";
-
         }
     }
 
 
-    // Métodos especiais
+    // Método construtor
 
     public function __construct()
     {

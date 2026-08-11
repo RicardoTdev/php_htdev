@@ -107,21 +107,13 @@ class Transacao
     public function paraArray()
     {
         return [
-
             "usuario" => $this->usuario,
-
             "tipo" => $this->tipo,
-
             "valor" => $this->valor,
-
             "saldoAnterior" => $this->saldoAnterior,
-
             "saldoAtual" => $this->saldoAtual,
-
             "data" => $this->data,
-
             "descricao" => $this->descricao
-
         ];
     }
 }

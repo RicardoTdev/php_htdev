@@ -1,2 +1,25 @@
-usuarios.json
-transacoes.json
+# Dependências
+/vendor/
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# Configurações locais
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Cache
+.cache/

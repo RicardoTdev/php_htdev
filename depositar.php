@@ -2,51 +2,57 @@
 
 session_start();
 
-require_once "ContaBanco.php";
-require_once "Transacao.php";
+require_once __DIR__ . "/app/classes/ContaBanco.php";
+require_once __DIR__ . "/app/classes/Transacao.php";
 
 
+// Verifica se o usuário está logado
 if (!isset($_SESSION["usuario"])) {
 
     header("Location: index.php");
-
     exit;
 }
 
 
-if ($_SERVER["REQUEST_METHOD"] != "POST") {
+// Verifica se a requisição veio através de POST
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
     header("Location: conta.php");
-
     exit;
 }
 
 
+// Pega o valor enviado pelo formulário
 $valor = (float) $_POST["valor"];
 
 
+// Impede depósito com valor inválido
 if ($valor <= 0) {
 
     header("Location: conta.php");
-
     exit;
 }
 
 
-$arquivo = "usuarios.json";
+// Caminho do arquivo de usuários
+$arquivo = __DIR__ . "/data/usuarios.json";
 
+
+// Lê o arquivo JSON
 $dados = file_get_contents($arquivo);
 
+
+// Converte o JSON para array PHP
 $usuarios = json_decode($dados, true);
 
 
+// Usuário atualmente logado
 $usuarioLogado = $_SESSION["usuario"];
 
 
 foreach ($usuarios as &$dadosConta) {
 
-    if ($dadosConta["usuario"] == $usuarioLogado) {
-
+    if ($dadosConta["usuario"] === $usuarioLogado) {
 
         /*
         |-----------------------------------------
@@ -107,7 +113,7 @@ foreach ($usuarios as &$dadosConta) {
 
         /*
         |-----------------------------------------
-        | Atualizamos usuarios.json
+        | Atualizamos o saldo do usuário
         |-----------------------------------------
         */
 
@@ -154,14 +160,23 @@ foreach ($usuarios as &$dadosConta) {
 
         /*
         |-----------------------------------------
+        | Caminho do arquivo de transações
+        |-----------------------------------------
+        */
+
+        $arquivoTransacoes =
+            __DIR__ . "/data/transacoes.json";
+
+
+        /*
+        |-----------------------------------------
         | Lemos transacoes.json
         |-----------------------------------------
         */
 
-        $arquivoTransacoes = "transacoes.json";
-
         $dadosTransacoes =
             file_get_contents($arquivoTransacoes);
+
 
         $transacoes =
             json_decode($dadosTransacoes, true);
@@ -170,7 +185,6 @@ foreach ($usuarios as &$dadosConta) {
         if (!is_array($transacoes)) {
 
             $transacoes = [];
-
         }
 
 
@@ -228,6 +242,12 @@ file_put_contents(
     $novoJson
 );
 
+
+/*
+|-----------------------------------------
+| Voltamos para a conta
+|-----------------------------------------
+*/
 
 header("Location: conta.php");
 

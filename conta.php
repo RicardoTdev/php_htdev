@@ -2,26 +2,33 @@
 
 session_start();
 
-require_once "ContaBanco.php";
+require_once __DIR__ . "/app/classes/ContaBanco.php";
+
 
 if (!isset($_SESSION["usuario"])) {
+
     header("Location: index.php");
     exit;
 }
 
-$arquivo = "usuarios.json";
+
+// Caminho do arquivo de usuários
+
+$arquivo = __DIR__ . "/data/usuarios.json";
 
 $dados = file_get_contents($arquivo);
 
 $usuarios = json_decode($dados, true);
 
+
 $usuarioLogado = $_SESSION["usuario"];
 
 $contaEncontrada = null;
 
+
 foreach ($usuarios as $conta) {
 
-    if ($conta["usuario"] == $usuarioLogado) {
+    if ($conta["usuario"] === $usuarioLogado) {
 
         $contaEncontrada = $conta;
 
@@ -29,7 +36,9 @@ foreach ($usuarios as $conta) {
     }
 }
 
+
 if ($contaEncontrada === null) {
+
     session_destroy();
 
     header("Location: index.php");
@@ -41,22 +50,43 @@ if ($contaEncontrada === null) {
 
 $contaBanco = new ContaBanco();
 
-$contaBanco->setNumConta($contaEncontrada["numConta"]);
-$contaBanco->setTipo($contaEncontrada["tipo"]);
-$contaBanco->setDono($contaEncontrada["nome"]);
-$contaBanco->setSaldo($contaEncontrada["saldo"]);
-$contaBanco->setStatus($contaEncontrada["status"]);
+$contaBanco->setNumConta(
+    $contaEncontrada["numConta"]
+);
+
+$contaBanco->setTipo(
+    $contaEncontrada["tipo"]
+);
+
+$contaBanco->setDono(
+    $contaEncontrada["nome"]
+);
+
+$contaBanco->setSaldo(
+    $contaEncontrada["saldo"]
+);
+
+$contaBanco->setStatus(
+    $contaEncontrada["status"]
+);
 
 
+// -----------------------------------------
 // Carregando as transações
+// -----------------------------------------
 
-$arquivoTransacoes = "transacoes.json";
+$arquivoTransacoes =
+    __DIR__ . "/data/transacoes.json";
 
-$dadosTransacoes = file_get_contents($arquivoTransacoes);
+$dadosTransacoes =
+    file_get_contents($arquivoTransacoes);
 
-$transacoes = json_decode($dadosTransacoes, true);
+$transacoes =
+    json_decode($dadosTransacoes, true);
+
 
 if (!is_array($transacoes)) {
+
     $transacoes = [];
 }
 
@@ -77,7 +107,10 @@ if (!is_array($transacoes)) {
 
     <title>Minha Conta - Banco PHP</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 
 </head>
 
@@ -90,7 +123,8 @@ if (!is_array($transacoes)) {
             <h1>🏦 Banco PHP</h1>
 
             <h2>
-                Olá, <?php echo $contaBanco->getDono(); ?>!
+                Olá,
+                <?php echo $contaBanco->getDono(); ?>!
             </h2>
 
 
@@ -100,7 +134,9 @@ if (!is_array($transacoes)) {
 
                     <strong>Número da conta:</strong>
 
-                    <?php echo $contaBanco->getNumConta(); ?>
+                    <?php
+                    echo $contaBanco->getNumConta();
+                    ?>
 
                 </p>
 
@@ -109,7 +145,9 @@ if (!is_array($transacoes)) {
 
                     <strong>Tipo:</strong>
 
-                    <?php echo $contaBanco->getTipo(); ?>
+                    <?php
+                    echo $contaBanco->getTipo();
+                    ?>
 
                 </p>
 
@@ -147,7 +185,6 @@ if (!is_array($transacoes)) {
                     } else {
 
                         echo "Conta fechada";
-
                     }
 
                     ?>
@@ -161,7 +198,10 @@ if (!is_array($transacoes)) {
 
             <h3>Depositar</h3>
 
-            <form action="depositar.php" method="POST">
+            <form
+                action="depositar.php"
+                method="POST"
+            >
 
                 <input
                     type="number"
@@ -183,7 +223,10 @@ if (!is_array($transacoes)) {
 
             <h3>Sacar</h3>
 
-            <form action="sacar.php" method="POST">
+            <form
+                action="sacar.php"
+                method="POST"
+            >
 
                 <input
                     type="number"
@@ -211,23 +254,38 @@ if (!is_array($transacoes)) {
 
                 $quantidade = 0;
 
-                foreach (array_reverse($transacoes) as $transacao) {
 
-                    if ($transacao["usuario"] == $usuarioLogado) {
+                foreach (
+                    array_reverse($transacoes)
+                    as $transacao
+                ) {
+
+                    if (
+                        $transacao["usuario"]
+                        === $usuarioLogado
+                    ) {
 
                         echo "<p>";
 
-                        if ($transacao["tipo"] == "deposito") {
+
+                        if (
+                            $transacao["tipo"]
+                            === "deposito"
+                        ) {
 
                             echo "🟢 Depósito: ";
 
-                        } elseif ($transacao["tipo"] == "saque") {
+                        } elseif (
+                            $transacao["tipo"]
+                            === "saque"
+                        ) {
 
                             echo "🔴 Saque: ";
-
                         }
 
+
                         echo "R$ ";
+
 
                         echo number_format(
                             $transacao["valor"],
@@ -236,26 +294,28 @@ if (!is_array($transacoes)) {
                             "."
                         );
 
+
                         echo " - ";
 
                         echo $transacao["data"];
 
                         echo "</p>";
 
-                        $quantidade++;
 
+                        $quantidade++;
                     }
 
+
                     if ($quantidade >= 5) {
+
                         break;
                     }
                 }
 
 
-                if ($quantidade == 0) {
+                if ($quantidade === 0) {
 
                     echo "<p>Nenhuma transação realizada.</p>";
-
                 }
 
                 ?>
@@ -276,4 +336,4 @@ if (!is_array($transacoes)) {
 
 </body>
 
-</html>xl
+</html>

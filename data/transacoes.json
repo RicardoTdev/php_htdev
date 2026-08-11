@@ -1,0 +1,32 @@
+[
+    {
+        "usuario": "joao",
+        "tipo": "deposito",
+        "valor": 80,
+        "saldoAnterior": 150,
+        "saldoAtual": 230,
+        "data": "10\/08\/2026 21:57:12",
+        "descricao": "Depósito realizado"
+    },
+    {
+        "usuario": "joao",
+        "tipo": "saque",
+        "valor": 15,
+        "data": "10\/08\/2026 21:57:30"
+    },
+    {
+        "usuario": "victoria",
+        "tipo": "deposito",
+        "valor": 300,
+        "saldoAnterior": 150,
+        "saldoAtual": 450,
+        "data": "10\/08\/2026 22:20:37",
+        "descricao": "Depósito realizado"
+    },
+    {
+        "usuario": "victoria",
+        "tipo": "saque",
+        "valor": 50,
+        "data": "10\/08\/2026 22:20:51"
+    }
+]
